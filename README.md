@@ -1,0 +1,1 @@
+To process images for experiements place "bright"/high-light images in the data/input folder and run the code in the final_project.ipynb notebook. 
