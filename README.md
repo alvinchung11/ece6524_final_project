@@ -1,1 +1,2 @@
-To process images for experiements place "bright"/high-light images in the data/input folder and run the code in the final_project.ipynb notebook. 
+To process images for experiments, place "bright"/high-light images in the data/input folder and run the corresponding cells. The processed images will be in the data/output folder. <br>
+To calculate evaluation metrics, place the predicted images in the data/predicted folder and run the corresponding cells.
