@@ -10,9 +10,7 @@ data/LOL/lol_dataset/
 
 ## Pretrained Zero-DCE++ Model
 Note: Zero-DCE++ is available for academic research purposes only, and users must follow the license terms outlined on the official GitHub page.
-Clone the Zero-DCE++ model into the external folder:
 https://github.com/Li-Chongyi/Zero-DCE_extension
 
-File structure should be:
+Clone Zero-DCE++ into the repository matching this structure:
 external/Zero-DCE_extension/Zero-DCE++/
-
