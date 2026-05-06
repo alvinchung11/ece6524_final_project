@@ -5,3 +5,7 @@ data/LOL/*
 !data/LOL/.gitkeep
 
 output_metrics.csv
+
+snapshots/*
+
+__pychache__
