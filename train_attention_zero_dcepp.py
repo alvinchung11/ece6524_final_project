@@ -139,7 +139,7 @@ def load_attention_zero_dcepp(device):
 
 
 # validation loss for early stopping
-def validate(zero_dcepp_model, val_dataloader, l1_loss, curve_map, device):
+def validate(zero_dcepp_model, val_dataloader, l1_loss, device):
     zero_dcepp_model.eval()
     total_val_loss = 0.0
 
@@ -151,29 +151,13 @@ def validate(zero_dcepp_model, val_dataloader, l1_loss, curve_map, device):
             output = zero_dcepp_model(low_images)
             enhanced_images = output[0]
 
-            loss = enhancement_loss(l1_loss, enhanced_images, high_images, curve_map)
+            loss = l1_loss(enhanced_images, high_images)
             total_val_loss += loss.item()
 
     avg_val_loss = total_val_loss / len(val_dataloader)
     zero_dcepp_model.train()
 
     return avg_val_loss
-
-
-def enhancement_loss(l1_loss, enhanced_images, high_images, curve_map):
-    l1 = l1_loss(enhanced_images, high_images)
-    ssim_loss = 1 - ssim(
-        enhanced_images,
-        high_images,
-        data_range=1.0,
-        size_average=True
-    )
-
-    dx = torch.abs(curve_map[:, :, :, 1:] - curve_map[:, :, :, :-1]).mean()
-    dy = torch.abs(curve_map[:, :, 1:, :] - curve_map[:, :, :-1, :]).mean()
-    curve_smoothness = dx + dy
-
-    return l1 + 0.1 * ssim_loss + 0.05 * curve_smoothness
 
 
 # fine tune zero-dce++ model with spacial attention layer on LOL dataset
@@ -210,8 +194,8 @@ def train():
     val_base_dataset = LOLDataset(
         TRAIN_LOW_DIR,
         TRAIN_HIGH_DIR,
-        mode="mixed",
-        local_prob=0.1,
+        mode="lol_low",
+        local_prob=0.5,
         gamma_range=(2.0, 5.0),
         random_darken=False
     )
@@ -254,9 +238,8 @@ def train():
 
             output = attention_zero_dcepp_model(low_images)
             enhanced_images = output[0]
-            curve_map = output[1]
 
-            loss = enhancement_loss(l1_loss, enhanced_images, high_images, curve_map)
+            loss = l1_loss(enhanced_images, high_images)
 
             optimizer.zero_grad()
             loss.backward()
@@ -266,7 +249,7 @@ def train():
             progress_bar.set_postfix(loss=loss.item())
 
         avg_train_loss = total_train_loss / len(train_dataloader)
-        avg_val_loss = validate(attention_zero_dcepp_model, val_dataloader, l1_loss, curve_map, device)
+        avg_val_loss = validate(attention_zero_dcepp_model, val_dataloader, l1_loss, device)
 
         print(
             f"Epoch {epoch + 1}: "
